@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🇷🇴 Bucarest Weekend</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0D0D0D;
+  --surface:#161616;
+  --surface2:#1F1F1F;
+  --gold:#E8C060;
+  --gold2:#F5D98A;
+  --gold-dim:#7A6030;
+  --red:#E05A40;
+  --teal:#3ECFAA;
+  --blue:#5B9CF6;
+  --text:#F0EDE8;
+  --muted:#7A7570;
+  --border:rgba(255,255,255,0.08);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden}
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.active{display:flex}
+
+/* SPLASH */
+#splash{align-items:center;justify-content:center;background:var(--bg);position:relative;overflow:hidden}
+.splash-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 30% 20%,rgba(232,192,96,0.12) 0%,transparent 60%),radial-gradient(ellipse 50% 50% at 80% 80%,rgba(62,207,170,0.08) 0%,transparent 60%)}
+.particles{position:absolute;inset:0;pointer-events:none}
+.particle{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--gold);opacity:0;animation:float linear infinite}
+@keyframes float{0%{opacity:0;transform:translateY(100vh) scale(0)}10%{opacity:0.6}90%{opacity:0.3}100%{opacity:0;transform:translateY(-20px) scale(1)}}
+.splash-content{text-align:center;position:relative;z-index:1;padding:2rem}
+.splash-flag{font-size:4rem;display:block;animation:pop 0.6s cubic-bezier(0.34,1.56,0.64,1) both}
+@keyframes pop{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.splash-title{font-family:'Syne',sans-serif;font-size:3.2rem;font-weight:800;background:linear-gradient(135deg,var(--gold2),var(--gold),#B8860B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin:0.5rem 0;animation:slideup 0.7s 0.2s cubic-bezier(0.34,1.2,0.64,1) both}
+@keyframes slideup{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+.splash-sub{font-size:0.9rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:2.5rem;animation:slideup 0.7s 0.35s both}
+.countdown-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:1.2rem 2rem;margin-bottom:2.5rem;animation:slideup 0.7s 0.45s both}
+.countdown-label{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem}
+.countdown-nums{display:flex;gap:1rem;justify-content:center;align-items:baseline}
+.countdown-unit{text-align:center}
+.countdown-unit .num{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--gold);line-height:1}
+.countdown-unit .lbl{font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em}
+.countdown-sep{font-size:1.5rem;color:var(--gold-dim);margin-bottom:0.3rem}
+.btn-start{display:inline-flex;align-items:center;gap:0.5rem;background:var(--gold);color:#000;font-family:'Outfit',sans-serif;font-size:1rem;font-weight:600;padding:0.9rem 2.2rem;border-radius:100px;border:none;cursor:pointer;animation:slideup 0.7s 0.55s both;transition:transform 0.15s,box-shadow 0.15s}
+.btn-start:active{transform:scale(0.96)}
+.btn-start:hover{box-shadow:0 0 30px rgba(232,192,96,0.4)}
+.splash-quiz-btn{display:inline-flex;align-items:center;gap:0.5rem;background:transparent;color:var(--teal);font-family:'Outfit',sans-serif;font-size:0.9rem;font-weight:600;padding:0.75rem 1.8rem;border-radius:100px;border:1.5px solid var(--teal);cursor:pointer;margin-top:0.8rem;animation:slideup 0.7s 0.65s both;transition:all 0.2s}
+.splash-quiz-btn:hover{background:rgba(62,207,170,0.1)}
+
+/* CARDS */
+#cards{background:var(--bg)}
+.cards-header{padding:1.2rem 1.25rem 0.8rem;display:flex;align-items:center;justify-content:space-between}
+.back-btn{background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:0.4rem 1rem;font-size:0.8rem;color:var(--muted);cursor:pointer;font-family:'Outfit',sans-serif;transition:color 0.2s;border:none}
+.back-btn:hover{color:var(--text)}
+.progress-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.progress-dots{display:flex;gap:6px;align-items:center}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--surface2);transition:all 0.3s}
+.dot.active{background:var(--gold);width:24px;border-radius:4px}
+.dot.done{background:var(--gold-dim)}
+.progress-label{font-size:0.7rem;color:var(--muted)}
+.card-stage{flex:1;display:flex;align-items:center;justify-content:center;padding:0.5rem 1rem 1rem;position:relative}
+.card{width:100%;max-width:380px;border-radius:24px;padding:1.75rem;border:1px solid var(--border);position:absolute;transition:transform 0.4s cubic-bezier(0.34,1.2,0.64,1),opacity 0.4s;cursor:grab;user-select:none;touch-action:pan-y}
+.card:active{cursor:grabbing}
+.card.exit-left{transform:translateX(-120%) rotate(-12deg)!important;opacity:0}
+.card.exit-right{transform:translateX(120%) rotate(12deg)!important;opacity:0}
+.card.behind{transform:scale(0.93) translateY(12px);opacity:0.5;pointer-events:none}
+.card.hidden{opacity:0;pointer-events:none}
+.card-day{font-size:0.7rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.5rem}
+.card-title{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;line-height:1.15;margin-bottom:0.4rem}
+.card-vibe{display:inline-block;font-size:0.75rem;font-weight:600;padding:0.25rem 0.75rem;border-radius:100px;margin-bottom:1.1rem}
+.card-items{list-style:none}
+.card-items li{display:flex;gap:0.7rem;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid var(--border);font-size:0.88rem;line-height:1.4}
+.card-items li:last-child{border-bottom:none}
+.ci-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+.card-tip{margin-top:1rem;padding:0.8rem 1rem;border-radius:12px;font-size:0.82rem;line-height:1.5;background:rgba(255,255,255,0.05)}
+.card-tip strong{font-weight:600}
+.card-nav{display:flex;gap:0.6rem;margin:0 1.25rem;padding-bottom:0.5rem}
+.card-nav-btn{flex:1;padding:0.7rem;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'Outfit',sans-serif;font-size:0.85rem;cursor:pointer;transition:all 0.2s}
+.card-nav-btn:hover:not(:disabled){border-color:var(--gold);color:var(--gold)}
+.card-nav-btn:disabled{opacity:0.3;cursor:default}
+.card-nav-btn.primary{background:rgba(232,192,96,0.12);border-color:var(--gold-dim);color:var(--gold)}
+
+/* card themes */
+.card-v{background:linear-gradient(145deg,#1A1208,#120D0A)}
+.card-s{background:linear-gradient(145deg,#0A1A14,#0D120F)}
+.card-s2{background:linear-gradient(145deg,#0A0F1A,#0D1018)}
+.card-d{background:linear-gradient(145deg,#0D0A1A,#0A0D18)}
+.card-l{background:linear-gradient(145deg,#1A0D0A,#120A0A)}
+.card-budget{background:linear-gradient(145deg,#0A0A0A,#151515)}
+.swipe-hint{text-align:center;padding:0.5rem;font-size:0.75rem;color:var(--muted)}
+
+/* QUIZ */
+#quiz{background:var(--bg);align-items:center;justify-content:center;padding:2rem 1.5rem 6rem}
+.quiz-wrap{width:100%;max-width:380px}
+.quiz-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.quiz-progress{display:flex;gap:5px}
+.qp-dot{width:28px;height:4px;border-radius:2px;background:var(--surface2);transition:background 0.3s}
+.qp-dot.done{background:var(--gold-dim)}
+.qp-dot.active{background:var(--gold)}
+.quiz-score-live{font-size:0.8rem;color:var(--muted)}
+.quiz-q{font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:800;margin-bottom:0.4rem;line-height:1.2}
+.quiz-sub{font-size:0.82rem;color:var(--muted);margin-bottom:1.5rem}
+.quiz-options{display:flex;flex-direction:column;gap:0.65rem;margin-bottom:1.2rem}
+.quiz-opt{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:0.9rem 1.1rem;cursor:pointer;font-family:'Outfit',sans-serif;font-size:0.9rem;color:var(--text);text-align:left;transition:all 0.2s;display:flex;align-items:center;gap:0.75rem}
+.quiz-opt:hover:not(:disabled){border-color:var(--gold);background:rgba(232,192,96,0.07)}
+.quiz-opt:disabled{cursor:default}
+.quiz-opt.correct{border-color:var(--teal);background:rgba(62,207,170,0.12);color:var(--teal)}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(224,90,64,0.1);color:var(--red)}
+.quiz-opt.reveal{border-color:rgba(62,207,170,0.3);background:rgba(62,207,170,0.05)}
+.quiz-feedback{padding:1rem;border-radius:12px;font-size:0.88rem;line-height:1.5;display:none;margin-bottom:1.2rem;animation:slideup 0.3s both}
+.quiz-feedback.show{display:block}
+.quiz-feedback.ok{background:rgba(62,207,170,0.1);color:var(--teal);border:1px solid rgba(62,207,170,0.3)}
+.quiz-feedback.nope{background:rgba(224,90,64,0.1);color:var(--red);border:1px solid rgba(224,90,64,0.3)}
+.btn-next{width:100%;padding:0.85rem;border-radius:100px;border:1.5px solid var(--gold);background:transparent;color:var(--gold);font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:600;cursor:pointer;transition:all 0.2s;display:none}
+.btn-next.show{display:block}
+.btn-next:hover{background:var(--gold);color:#000}
+
+/* FINALE */
+#finale{align-items:center;justify-content:center;background:var(--bg);padding:2rem 1.5rem;text-align:center;position:relative;overflow:hidden}
+.finale-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(232,192,96,0.08) 0%,transparent 70%)}
+.confetti-piece{position:absolute;width:8px;height:8px;border-radius:2px;animation:confetti-fall linear forwards}
+@keyframes confetti-fall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.finale-content{position:relative;z-index:1;max-width:360px;width:100%}
+.finale-emoji{font-size:3.5rem;display:block;margin-bottom:1rem;animation:pop 0.5s cubic-bezier(0.34,1.56,0.64,1)}
+.finale-title{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--gold);margin-bottom:0.5rem}
+.finale-score-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.2rem;margin:1.5rem 0}
+.score-big{font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:var(--gold);line-height:1}
+.score-label{font-size:0.85rem;color:var(--muted);margin-top:0.2rem}
+.stars-row{display:flex;justify-content:center;gap:0.4rem;margin:0.5rem 0 0}
+.star{font-size:1.6rem;transition:transform 0.3s}
+.finale-msg{font-size:0.92rem;color:var(--muted);line-height:1.6;margin-bottom:2rem}
+.finale-checklist{text-align:left;list-style:none;margin-bottom:2rem;background:var(--surface);border-radius:16px;padding:0.5rem 1.2rem;border:1px solid var(--border)}
+.finale-checklist li{display:flex;gap:0.7rem;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--border);font-size:0.87rem}
+.finale-checklist li:last-child{border-bottom:none}
+.check-icon{font-size:1rem;flex-shrink:0}
+.btn-restart{display:inline-flex;align-items:center;gap:0.5rem;background:transparent;border:1.5px solid var(--gold);color:var(--gold);padding:0.85rem 2rem;border-radius:100px;font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:600;cursor:pointer;transition:all 0.2s;margin-bottom:1rem}
+.btn-restart:hover{background:var(--gold);color:#000}
+
+/* NAV */
+.nav{display:flex;background:var(--surface);border-top:1px solid var(--border);position:fixed;bottom:0;left:0;right:0;z-index:100}
+.nav-btn{flex:1;padding:0.75rem 0;display:flex;flex-direction:column;align-items:center;gap:0.15rem;cursor:pointer;background:none;border:none;color:var(--muted);font-family:'Outfit',sans-serif;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;transition:color 0.2s}
+.nav-btn.active{color:var(--gold)}
+.nav-icon{font-size:1.25rem}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div class="screen active" id="splash">
+  <div class="splash-bg"></div>
+  <div class="particles" id="particles"></div>
+  <div class="splash-content">
+    <span class="splash-flag">🇷🇴</span>
+    <h1 class="splash-title">Bucarest<br>Weekend</h1>
+    <p class="splash-sub">22 – 25 Maggio 2025</p>
+    <div class="countdown-box">
+      <div class="countdown-label">Manca ancora</div>
+      <div class="countdown-nums">
+        <div class="countdown-unit"><div class="num" id="cd-d">--</div><div class="lbl">giorni</div></div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-unit"><div class="num" id="cd-h">--</div><div class="lbl">ore</div></div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-unit"><div class="num" id="cd-m">--</div><div class="lbl">min</div></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+      <button class="btn-start" onclick="goCards()">Scopri il piano →</button>
+      <button class="splash-quiz-btn" onclick="goQuiz()">🎯 Fai il quiz su Bucarest</button>
+    </div>
+  </div>
+</div>
+
+<!-- CARDS -->
+<div class="screen" id="cards" style="padding-bottom:80px">
+  <div class="cards-header">
+    <button class="back-btn" onclick="goSplash()">← Indietro</button>
+    <div class="progress-wrap">
+      <div class="progress-dots" id="dots"></div>
+      <div class="progress-label" id="progress-label">1 / 6</div>
+    </div>
+  </div>
+  <div class="card-stage" id="cardStage"></div>
+  <div class="swipe-hint" id="swipe-hint">← swipe o usa i tasti →</div>
+  <div class="card-nav" id="card-nav">
+    <button class="card-nav-btn" id="btn-prev" onclick="goPrev()">← Precedente</button>
+    <button class="card-nav-btn primary" id="btn-next-card" onclick="goNext()">Prossima →</button>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn" onclick="goSplash()"><span class="nav-icon">🏠</span>Home</button>
+    <button class="nav-btn active"><span class="nav-icon">📅</span>Piano</button>
+    <button class="nav-btn" onclick="goQuiz()"><span class="nav-icon">🎯</span>Quiz</button>
+  </nav>
+</div>
+
+<!-- QUIZ -->
+<div class="screen" id="quiz">
+  <div class="quiz-wrap">
+    <div id="quiz-content"></div>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn" onclick="goSplash()"><span class="nav-icon">🏠</span>Home</button>
+    <button class="nav-btn" onclick="goCards()"><span class="nav-icon">📅</span>Piano</button>
+    <button class="nav-btn active"><span class="nav-icon">🎯</span>Quiz</button>
+  </nav>
+</div>
+
+<!-- FINALE -->
+<div class="screen" id="finale">
+  <div class="finale-bg"></div>
+  <div class="finale-content">
+    <span class="finale-emoji" id="finale-emoji">🏆</span>
+    <h2 class="finale-title" id="finale-title">Sei pronto!</h2>
+    <div class="finale-score-box">
+      <div class="score-big" id="finale-score-num">0/5</div>
+      <div class="score-label">punteggio quiz Bucarest</div>
+      <div class="stars-row" id="stars-row"></div>
+    </div>
+    <p class="finale-msg" id="finale-msg">Buon weekend!</p>
+    <ul class="finale-checklist">
+      <li><span class="check-icon">✅</span>Stare in zona Old Town / Calea Victoriei</li>
+      <li><span class="check-icon">✅</span>Bolt/Uber per spostarsi — economicissimi</li>
+      <li><span class="check-icon">✅</span>Cena rumena almeno una sera</li>
+      <li><span class="check-icon">✅</span>Therme se siete in mood relax</li>
+      <li><span class="check-icon">✅</span>Niente musei obbligatori, godetevi il ritmo</li>
+    </ul>
+    <button class="btn-restart" onclick="goSplash()">↺ Ricomincia</button>
+  </div>
+</div>
+
+<script>
+// particles
+const pCont=document.getElementById('particles');
+for(let i=0;i<25;i++){
+  const p=document.createElement('div');p.className='particle';
+  p.style.left=Math.random()*100+'%';
+  p.style.width=p.style.height=(Math.random()*3+2)+'px';
+  p.style.animationDuration=(Math.random()*8+6)+'s';
+  p.style.animationDelay=(Math.random()*8)+'s';
+  p.style.background=['#E8C060','#3ECFAA','#5B9CF6','#F0EDE8'][Math.floor(Math.random()*4)];
+  pCont.appendChild(p);
+}
+
+// countdown
+function updateCountdown(){
+  const target=new Date('2025-05-22T20:00:00');
+  const diff=target-new Date();
+  if(diff<=0){['cd-d','cd-h','cd-m'].forEach(id=>document.getElementById(id).textContent='00');return;}
+  const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000);
+  document.getElementById('cd-d').textContent=String(d).padStart(2,'0');
+  document.getElementById('cd-h').textContent=String(h).padStart(2,'0');
+  document.getElementById('cd-m').textContent=String(m).padStart(2,'0');
+}
+updateCountdown();setInterval(updateCountdown,30000);
+
+// screen nav
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function goSplash(){showScreen('splash')}
+function goCards(){showScreen('cards');initCards()}
+function goQuiz(){showScreen('quiz');initQuiz()}
+
+// cards data
+const cardsData=[
+  {cls:'card-v',day:'Venerdì 22 maggio',title:'Arrivo soft',vibe:'🌙 Serata tranquilla',vibeC:'rgba(232,192,96,0.15)',vibeT:'#E8C060',
+   items:[{i:'🏨',t:'Check-in in zona Old Town o Calea Victoriei — tutto a piedi da lì'},{i:'🍸',t:'Drink tranquillo in uno dei cocktail bar di Centrul Vechi'},{i:'🌃',t:'Passeggiata notturna: il centro storico di sera nel weekend è vivo e bellissimo'}],
+   tip:{i:'💡',t:'Prima serata solo per ambientarsi. Niente programma rigido.'}},
+  {cls:'card-s',day:'Sabato 23 — mattina',title:'Bucarest classica',vibe:'☀️ Cultura & caffè',vibeC:'rgba(62,207,170,0.12)',vibeT:'#3ECFAA',
+   items:[{i:'🛤',t:'Calea Victoriei — il boulevard più iconico della città'},{i:'🎭',t:'Ateneo Rumeno — uno dei palazzi più belli dell\'Est Europa'},{i:'📚',t:'Cărtureşti Carusel — libreria che sembra un set cinematografico'},{i:'☕',t:'Caffetteria a scelta: la scena è ottima ovunque'}],
+   tip:{i:'📸',t:'Ateneo e Cărtureşti valgono già da soli tutta la mattinata.'}},
+  {cls:'card-s2',day:'Sabato 23 — pomeriggio',title:'Scegli il vibe',vibe:'🎲 Due opzioni',vibeC:'rgba(91,156,246,0.12)',vibeT:'#5B9CF6',
+   items:[{i:'🏙',t:'Opzione A — City & Rooftop: quartieri, cocktail bar con vista panoramica, vibe urbano'},{i:'♨️',t:'Opzione B — Therme Bucharest: terme enormi, piscine, saune, relax totale. Le più grandi d\'Europa.'}],
+   tip:{i:'🔥',t:'Therme è famosissima tra chi fa weekend brevi a Bucarest. Se siete in vena di relax, vincono loro.'}},
+  {cls:'card-d',day:'Domenica 24 maggio',title:'Vibe locale',vibe:'🌿 Quartieri & parchi',vibeC:'rgba(62,207,170,0.1)',vibeT:'#3ECFAA',
+   items:[{i:'🌳',t:'Parco Herăstrău — enorme, con lago, il polmone verde della città'},{i:'🏘',t:'Dorobanți — quartiere più chic e moderno di Bucarest'},{i:'⛪',t:'Piața Romană — zona vivace, ottima per passeggiare e fare shopping'},{i:'🥐',t:'Brunch lento, caffè, mercatini — domenica qui è piacevolissima'}],
+   tip:{i:'😌',t:'La domenica a Bucarest è rilassata. Giornata perfetta per vivere come un locale.'}},
+  {cls:'card-l',day:'Lunedì 25 maggio',title:'Ultime ore senza fretta',vibe:'✈️ Rientro comodo',vibeC:'rgba(224,90,64,0.1)',vibeT:'#E05A40',
+   items:[{i:'☕',t:'Colazione lunga — nessuna fretta al mattino'},{i:'🛍',t:'Shopping last-minute o museo leggero'},{i:'🍜',t:'Pranzo tranquillo in zona centrale'},{i:'🚕',t:'Bolt/Uber verso l\'aeroporto — economicissimi e comodissimi'}],
+   tip:{i:'👌',t:'Avere il volo la sera è il formato perfetto: guadagni una mattina intera senza correre.'}},
+  {cls:'card-budget',day:'Budget & consigli pratici',title:'Prezzi & tips',vibe:'💰 Molto accessibile',vibeC:'rgba(232,192,96,0.12)',vibeT:'#E8C060',
+   items:[{i:'🍹',t:'Cocktail: 7–10 € — praticamente la metà rispetto all\'Italia'},{i:'🍽',t:'Cena buona: 15–30 € a persona'},{i:'🚕',t:'Bolt/Uber: costi ridicoli — usatelo per tutto senza pensarci'},{i:'🏨',t:'Hotel boutique: qualità/prezzo imbattibile vs Europa Ovest'},{i:'🌡',t:'Fine maggio: t-shirt di giorno, giacca leggera la sera. Perfetto.'}],
+   tip:{i:'🎯',t:'Fine maggio è il momento ideale per Bucarest. Molto meglio che in estate piena.'}},
+];
+
+let curCard=0,isDragging=false,startX=0,dragX=0,activeEl=null;
+
+function initCards(){curCard=0;renderCards()}
+function renderDots(){
+  const cont=document.getElementById('dots');cont.innerHTML='';
+  cardsData.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===curCard?' active':i<curCard?' done':'');cont.appendChild(d)});
+  document.getElementById('progress-label').textContent=`${curCard+1} / ${cardsData.length}`;
+  document.getElementById('btn-prev').disabled=curCard===0;
+  const nb=document.getElementById('btn-next-card');
+  nb.textContent=curCard===cardsData.length-1?'🎯 Fai il Quiz!':'Prossima →';
+  nb.style.borderColor=curCard===cardsData.length-1?'var(--teal)':'';
+  nb.style.color=curCard===cardsData.length-1?'var(--teal)':'';
+  nb.style.background=curCard===cardsData.length-1?'rgba(62,207,170,0.1)':'';
+}
+function renderCards(){
+  const stage=document.getElementById('cardStage');stage.innerHTML='';activeEl=null;
+  cardsData.forEach((d,i)=>{
+    const card=document.createElement('div');
+    card.className='card '+d.cls;
+    if(i<curCard)card.className+=' hidden';
+    else if(i===curCard){/* front */}
+    else if(i===curCard+1)card.className+=' behind';
+    else card.className+=' hidden';
+    card.innerHTML=`
+      <div class="card-day" style="color:${d.vibeT}">${d.day}</div>
+      <div class="card-title">${d.title}</div>
+      <span class="card-vibe" style="background:${d.vibeC};color:${d.vibeT}">${d.vibe}</span>
+      <ul class="card-items">${d.items.map(it=>`<li><span class="ci-icon">${it.i}</span><span>${it.t}</span></li>`).join('')}</ul>
+      ${d.tip?`<div class="card-tip">${d.tip.i} <strong>Pro tip:</strong> ${d.tip.t}</div>`:''}
+    `;
+    if(i===curCard){
+      activeEl=card;
+      card.addEventListener('mousedown',dragStart);
+      card.addEventListener('touchstart',dragStart,{passive:true});
+    }
+    stage.appendChild(card);
+  });
+  renderDots();
+}
+
+function dragStart(e){
+  isDragging=true;startX=(e.type==='touchstart'?e.touches[0].clientX:e.clientX);dragX=0;
+  document.addEventListener('mousemove',dragMove);document.addEventListener('mouseup',dragEnd);
+  document.addEventListener('touchmove',dragMove,{passive:true});document.addEventListener('touchend',dragEnd);
+}
+function dragMove(e){
+  if(!isDragging||!activeEl)return;
+  dragX=(e.type==='touchmove'?e.touches[0].clientX:e.clientX)-startX;
+  activeEl.style.transform=`translateX(${dragX}px) rotate(${dragX*0.04}deg)`;
+}
+function dragEnd(){
+  if(!isDragging)return;isDragging=false;
+  document.removeEventListener('mousemove',dragMove);document.removeEventListener('mouseup',dragEnd);
+  document.removeEventListener('touchmove',dragMove);document.removeEventListener('touchend',dragEnd);
+  if(Math.abs(dragX)>70){if(dragX<0)goNext();else goPrev();}
+  else if(activeEl)activeEl.style.transform='';
+}
+function goNext(){
+  if(curCard===cardsData.length-1){goQuiz();return;}
+  if(!activeEl)return;
+  activeEl.classList.add('exit-left');
+  setTimeout(()=>{curCard=Math.min(curCard+1,cardsData.length-1);renderCards()},350);
+}
+function goPrev(){
+  if(curCard===0)return;
+  if(!activeEl)return;
+  activeEl.classList.add('exit-right');
+  setTimeout(()=>{curCard=Math.max(curCard-1,0);renderCards()},350);
+}
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('cards').classList.contains('active'))return;
+  if(e.key==='ArrowRight')goNext();
+  if(e.key==='ArrowLeft')goPrev();
+});
+
+// quiz
+const quizData=[
+  {q:'Qual è il boulevard più iconico di Bucarest?',opts:['Bulevardul Unirii','Calea Victoriei','Strada Lipscani','Calea Dorobanților'],c:1,ok:'✅ Esatto! Calea Victoriei è il cuore storico e culturale della città.',no:'❌ Era Calea Victoriei — il boulevard più storico di Bucarest.'},
+  {q:'Cosa è il Cărtureşti Carusel?',opts:['Un ristorante tradizionale','Un parco nel centro','Una libreria famosissima','Un mercato coperto'],c:2,ok:'✅ Giusto! Una libreria spettacolare — sembra un set cinematografico.',no:'❌ È una libreria — una delle più belle d\'Europa intera.'},
+  {q:'Quanto costa indicativamente un cocktail a Bucarest?',opts:['15–20 €','7–10 €','20–30 €','Meno di 5 €'],c:1,ok:'✅ Sì! Praticamente la metà rispetto all\'Italia.',no:'❌ Costano 7–10 € — molto più economico che da noi.'},
+  {q:'Cosa sono le Therme Bucharest?',opts:['Un quartiere storico','Un ristorante di lusso','Terme enormi e famose','Un museo di arte contemporanea'],c:2,ok:'✅ Perfetto! Enormi terme coperte — perfette per un sabato relax.',no:'❌ Sono le terme — enormi e famosissime tra chi fa weekend brevi!'},
+  {q:'Qual è il parco più grande e iconico di Bucarest?',opts:['Parco Tineretului','Parco Carol I','Parco Herăstrău','Parcul IOR'],c:2,ok:'✅ Sì! Herăstrău con il suo lago è il polmone verde della città.',no:'❌ Era Herăstrău — enorme, con lago. Il più bello di Bucarest.'},
+];
+
+let qIdx=0,score=0,answered=false;
+function initQuiz(){qIdx=0;score=0;answered=false;renderQ()}
+function renderQ(){
+  const cont=document.getElementById('quiz-content');
+  if(qIdx>=quizData.length){renderFinale();return;}
+  const q=quizData[qIdx];answered=false;
+  const dots=quizData.map((_,i)=>`<div class="qp-dot${i<qIdx?' done':i===qIdx?' active':''}"></div>`).join('');
+  cont.innerHTML=`
+    <div class="quiz-header">
+      <div class="quiz-progress">${dots}</div>
+      <div class="quiz-score-live">✨ ${score} punti</div>
+    </div>
+    <h2 class="quiz-q">${q.q}</h2>
+    <p class="quiz-sub">Domanda ${qIdx+1} di ${quizData.length}</p>
+    <div class="quiz-options">${q.opts.map((o,i)=>`<button class="quiz-opt" onclick="ansQ(${i})" id="qo${i}"><span style="font-size:1rem">${['🅰','🅱','🅲','🅳'][i]}</span> ${o}</button>`).join('')}</div>
+    <div class="quiz-feedback" id="qfb"></div>
+    <button class="btn-next" id="qnxt" onclick="nextQ()">${qIdx<quizData.length-1?'Prossima domanda →':'Vedi risultato 🏆'}</button>
+  `;
+}
+function ansQ(i){
+  if(answered)return;answered=true;
+  const q=quizData[qIdx];const ok=i===q.c;if(ok)score++;
+  document.querySelectorAll('.quiz-opt').forEach((el,idx)=>{
+    el.disabled=true;
+    if(idx===q.c)el.classList.add('correct');
+    else if(idx===i&&!ok)el.classList.add('wrong');
+    else el.classList.add('reveal');
+  });
+  const fb=document.getElementById('qfb');
+  fb.textContent=ok?q.ok:q.no;fb.className='quiz-feedback show '+(ok?'ok':'nope');
+  document.getElementById('qnxt').classList.add('show');
+}
+function nextQ(){qIdx++;if(qIdx>=quizData.length)renderFinale();else renderQ()}
+function renderFinale(){
+  showScreen('finale');
+  document.getElementById('finale-score-num').textContent=`${score}/${quizData.length}`;
+  const pct=score/quizData.length;
+  let emoji,title,msg;
+  if(pct>=0.8){emoji='🏆';title='Sei un esperto!';msg='Conosci già Bucarest meglio di molti che ci vivono. Non ti resta che andarci e godertela.'}
+  else if(pct>=0.6){emoji='😎';title='Quasi pronto!';msg='Conosci bene la città. Qualche lettura in più e sarete perfetti per il weekend.'}
+  else{emoji='🎒';title='Da scoprire!';msg='Bucarest ti riserverà tante sorprese. Meglio così — l\'avventura è garantita!'}
+  document.getElementById('finale-emoji').textContent=emoji;
+  document.getElementById('finale-title').textContent=title;
+  document.getElementById('finale-msg').textContent=msg;
+  const stars=Math.round(pct*5);
+  document.getElementById('stars-row').innerHTML='⭐'.repeat(stars)+'☆'.repeat(5-stars);
+  // confetti
+  const finale=document.getElementById('finale');
+  const colors=['#E8C060','#3ECFAA','#5B9CF6','#E05A40','#F0EDE8'];
+  for(let i=0;i<40;i++){
+    const c=document.createElement('div');c.className='confetti-piece';
+    c.style.left=Math.random()*100+'%';c.style.top='-20px';
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDuration=(Math.random()*2+2)+'s';c.style.animationDelay=(Math.random()*1.5)+'s';
+    c.style.transform=`rotate(${Math.random()*360}deg)`;
+    finale.appendChild(c);
+    setTimeout(()=>c.remove(),4000);
+  }
+}
+</script>
+</body>
+</html>
