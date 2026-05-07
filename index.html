@@ -62,13 +62,13 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .dot.active{background:var(--gold);width:24px;border-radius:4px}
 .dot.done{background:var(--gold-dim)}
 .progress-label{font-size:0.7rem;color:var(--muted)}
-.card-stage{flex:1;display:flex;align-items:center;justify-content:center;padding:0.5rem 1rem 1rem;position:relative}
-.card{width:100%;max-width:380px;border-radius:24px;padding:1.75rem;border:1px solid var(--border);position:absolute;transition:transform 0.4s cubic-bezier(0.34,1.2,0.64,1),opacity 0.4s;cursor:grab;user-select:none;touch-action:pan-y}
+.card-stage{padding:0.5rem 1rem 1rem;overflow:hidden}
+.card{width:100%;border-radius:24px;padding:1.75rem;border:1px solid var(--border);cursor:grab;user-select:none;touch-action:pan-y;transition:transform 0.35s cubic-bezier(0.34,1.2,0.64,1),opacity 0.35s}
 .card:active{cursor:grabbing}
-.card.exit-left{transform:translateX(-120%) rotate(-12deg)!important;opacity:0}
-.card.exit-right{transform:translateX(120%) rotate(12deg)!important;opacity:0}
-.card.behind{transform:scale(0.93) translateY(12px);opacity:0.5;pointer-events:none}
-.card.hidden{opacity:0;pointer-events:none}
+.card.exit-left{transform:translateX(-110%) rotate(-10deg);opacity:0;pointer-events:none}
+.card.exit-right{transform:translateX(110%) rotate(10deg);opacity:0;pointer-events:none}
+.card.enter-right{transform:translateX(110%);opacity:0}
+.card.enter-left{transform:translateX(-110%);opacity:0}
 .card-day{font-size:0.7rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.5rem}
 .card-title{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;line-height:1.15;margin-bottom:0.4rem}
 .card-vibe{display:inline-block;font-size:0.75rem;font-weight:600;padding:0.25rem 0.75rem;border-radius:100px;margin-bottom:1.1rem}
@@ -286,7 +286,7 @@ const cardsData=[
 
 let curCard=0,isDragging=false,startX=0,dragX=0,activeEl=null;
 
-function initCards(){curCard=0;renderCards()}
+function initCards(){curCard=0;renderCards(null)}
 function renderDots(){
   const cont=document.getElementById('dots');cont.innerHTML='';
   cardsData.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===curCard?' active':i<curCard?' done':'');cont.appendChild(d)});
@@ -298,29 +298,28 @@ function renderDots(){
   nb.style.color=curCard===cardsData.length-1?'var(--teal)':'';
   nb.style.background=curCard===cardsData.length-1?'rgba(62,207,170,0.1)':'';
 }
-function renderCards(){
+function renderCards(enterDir){
   const stage=document.getElementById('cardStage');stage.innerHTML='';activeEl=null;
-  cardsData.forEach((d,i)=>{
-    const card=document.createElement('div');
-    card.className='card '+d.cls;
-    if(i<curCard)card.className+=' hidden';
-    else if(i===curCard){/* front */}
-    else if(i===curCard+1)card.className+=' behind';
-    else card.className+=' hidden';
-    card.innerHTML=`
-      <div class="card-day" style="color:${d.vibeT}">${d.day}</div>
-      <div class="card-title">${d.title}</div>
-      <span class="card-vibe" style="background:${d.vibeC};color:${d.vibeT}">${d.vibe}</span>
-      <ul class="card-items">${d.items.map(it=>`<li><span class="ci-icon">${it.i}</span><span>${it.t}</span></li>`).join('')}</ul>
-      ${d.tip?`<div class="card-tip">${d.tip.i} <strong>Pro tip:</strong> ${d.tip.t}</div>`:''}
-    `;
-    if(i===curCard){
-      activeEl=card;
-      card.addEventListener('mousedown',dragStart);
-      card.addEventListener('touchstart',dragStart,{passive:true});
-    }
-    stage.appendChild(card);
-  });
+  const d=cardsData[curCard];
+  const card=document.createElement('div');
+  card.className='card '+d.cls;
+  if(enterDir)card.classList.add(enterDir==='left'?'enter-right':'enter-left');
+  card.innerHTML=`
+    <div class="card-day" style="color:${d.vibeT}">${d.day}</div>
+    <div class="card-title">${d.title}</div>
+    <span class="card-vibe" style="background:${d.vibeC};color:${d.vibeT}">${d.vibe}</span>
+    <ul class="card-items">${d.items.map(it=>`<li><span class="ci-icon">${it.i}</span><span>${it.t}</span></li>`).join('')}</ul>
+    ${d.tip?`<div class="card-tip">${d.tip.i} <strong>Pro tip:</strong> ${d.tip.t}</div>`:''}
+  `;
+  activeEl=card;
+  card.addEventListener('mousedown',dragStart);
+  card.addEventListener('touchstart',dragStart,{passive:true});
+  stage.appendChild(card);
+  if(enterDir){
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      card.classList.remove('enter-right','enter-left');
+    }));
+  }
   renderDots();
 }
 
@@ -338,20 +337,21 @@ function dragEnd(){
   if(!isDragging)return;isDragging=false;
   document.removeEventListener('mousemove',dragMove);document.removeEventListener('mouseup',dragEnd);
   document.removeEventListener('touchmove',dragMove);document.removeEventListener('touchend',dragEnd);
-  if(Math.abs(dragX)>70){if(dragX<0)goNext();else goPrev();}
-  else if(activeEl)activeEl.style.transform='';
+  if(dragX < -60) goNext();
+  else if(dragX > 60) goPrev();
+  else if(activeEl) activeEl.style.transform='';
 }
 function goNext(){
   if(curCard===cardsData.length-1){goQuiz();return;}
   if(!activeEl)return;
   activeEl.classList.add('exit-left');
-  setTimeout(()=>{curCard=Math.min(curCard+1,cardsData.length-1);renderCards()},350);
+  setTimeout(()=>{curCard++;renderCards('left')},320);
 }
 function goPrev(){
   if(curCard===0)return;
   if(!activeEl)return;
   activeEl.classList.add('exit-right');
-  setTimeout(()=>{curCard=Math.max(curCard-1,0);renderCards()},350);
+  setTimeout(()=>{curCard--;renderCards('right')},320);
 }
 document.addEventListener('keydown',e=>{
   if(!document.getElementById('cards').classList.contains('active'))return;
